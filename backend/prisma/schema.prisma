@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model items {
+  id                 Int                  @id @default(autoincrement())
+  food_type_id       Int?
+  sub_category_id    Int?
+  name               String               @db.VarChar(200)
+  quantity           String?              @db.VarChar(100)
+  price              Float
+  image              String?              @db.LongText
+  total_count        Int                  @default(1) @db.TinyInt
+  sub_categories     sub_categories?      @relation(fields: [sub_category_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8XZQ")
+  food_types         food_types?          @relation(fields: [food_type_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_WUDT")
+  order_transactions order_transactions[]
+
+  @@index([sub_category_id], map: "FK_4KG5")
+  @@index([food_type_id], map: "FK_9RZG")
+}
+
+model categories {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(200)
+  sub_categories sub_categories[]
+}
+
+model food_types {
+  id    Int     @id @default(autoincrement())
+  type  String  @db.VarChar(20)
+  items items[]
+}
+
+model order_transactions {
+  id       Int    @id @default(autoincrement())
+  item_id  Int
+  order_id Int
+  quantity Int
+  price    Int
+  orders   orders @relation(fields: [order_id], references: [id], onUpdate: Restrict, map: "FK_4LLZ")
+  items    items  @relation(fields: [item_id], references: [id], onUpdate: Restrict, map: "FK_DTSG")
+
+  @@index([order_id], map: "FK_4LLZ")
+  @@index([item_id], map: "FK_DTSG")
+}
+
+model orders {
+  id                  Int                  @id @default(autoincrement())
+  user_name           String?              @db.VarChar(100)
+  user_mobile         String               @db.VarChar(50)
+  user_address        String               @db.VarChar(200)
+  order_timeslot_id   Int
+  order_date          DateTime             @default(now()) @db.Timestamp(0)
+  order_delivery_date DateTime             @db.Date
+  payment_id          String?              @db.VarChar(100)
+  order_transactions  order_transactions[]
+  timeslots           timeslots            @relation(fields: [order_timeslot_id], references: [id], onUpdate: Restrict, map: "FK_PPAR")
+
+  @@index([order_timeslot_id], map: "FK_PPAR")
+}
+
+model sub_categories {
+  id          Int        @id @default(autoincrement())
+  name        String     @db.VarChar(200)
+  category_id Int
+  items       items[]
+  categories  categories @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "FK_18J4")
+
+  @@index([category_id], map: "FK_18J4")
+}
+
+model timeslots {
+  id       Int      @id @default(autoincrement())
+  timeslot String   @db.VarChar(20)
+  orders   orders[]
+}
