@@ -31,9 +31,8 @@ router.post('/getFoodList', async (req: any, res) => {
     }
 });
 
-
 router.post('/getorderSummary', async (req: any, res) => {
-    console.log('getorderSummary', req.body);
+
     try {
         const request = req.body.data;
         const responseData: any = [];
@@ -59,8 +58,6 @@ router.post('/getorderSummary', async (req: any, res) => {
             responseData.push({ food_type_id, foodId, image, name, price, quantity: item.quantity, totalPrice });
 
         }));
-
-
 
         res.json(responseData);
     } catch (error) {
